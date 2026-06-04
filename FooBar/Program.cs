@@ -1,22 +1,19 @@
 ﻿int n = 15;
 
-for(int i = 1; i <= n; i++)
+for (int i = 1; i <= n; i++)
 {
     if (i % 3 == 0)
     {
-        Console.Write("foo");
+        Console.Write("Foo");
     }
-
     if (i % 5 == 0)
     {
-        Console.Write("bar");
+        Console.Write("Bar");
     }
-
     if (i % 3 != 0 && i % 5 != 0)
     {
         Console.Write(i);
     }
-
-    Console.Write(", ");
+    if (i != n) Console.Write(", ");
 }
 
