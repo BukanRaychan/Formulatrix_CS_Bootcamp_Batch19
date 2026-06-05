@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using ProductCatalogAPI.Models;
+using ProductCatalogAPI.DTOs.ProductDtos;
+using ProductCatalogAPI.Services;
 
 namespace ProductCatalogAPI.Controllers;
 
@@ -7,67 +8,56 @@ namespace ProductCatalogAPI.Controllers;
 [Route("api/[controller]")]
 public class ProductsController : ControllerBase
 {
-    private static List<Product> _products = new List<Product>
+    private readonly IProductService _productService;
+
+    public ProductsController(IProductService productService)
     {
-        new Product { Id = 1, Name = "Product 1", Description = "Description for Product 1", Price = 9.99m, Stock = 100 },
-        new Product { Id = 2, Name = "Product 2", Description = "Description for Product 2", Price = 19.99m, Stock = 50 },
-        new Product { Id = 3, Name = "Product 3", Description = "Description for Product 3", Price = 29.99m, Stock = 25 }
-    };
+        _productService = productService;
+    }
 
     [HttpGet]
     public IActionResult GetAll()
     {
-        return Ok(_products);
+        return Ok(_productService.GetAll());
     }
 
     [HttpGet("{id}")]
     public IActionResult GetById(int id)
     {
-        var product = _products.FirstOrDefault(p => p.Id == id);
+        var product = _productService.GetById(id);
+
         if (product == null)
-        {
-            return NotFound($"Product with ID {id} not found");
-        }
+            return NotFound($"Product with id {id} not found");
+
         return Ok(product);
     }
 
     [HttpPost]
-    public IActionResult Create([FromBody] Product product)
+    public IActionResult Create([FromBody] CreateProductDto dto)
     {
-        product.Id = _products.Max(p => p.Id) + 1;
-        product.CreatedAt = DateTime.UtcNow;
-        _products.Add(product);
-
-        return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
+        var created = _productService.Create(dto);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     [HttpPut("{id}")]
-    public IActionResult Update(int id, [FromBody] Product product)
+    public IActionResult Update(int id, [FromBody] UpdateProductDto dto)
     {
-        var existing = _products.FirstOrDefault(p => p.Id == id);
-        if (existing == null)
-        {
-            return NotFound($"Product with ID {id} not found");
-        }
+        var updated = _productService.Update(id, dto);
 
-        existing.Name = product.Name;
-        existing.Description = product.Description;
-        existing.Price = product.Price;
-        existing.Stock = product.Stock;
+        if (updated == null)
+            return NotFound($"Product with id {id} not found");
 
-        return Ok(existing);
+        return Ok(updated);
     }
 
     [HttpDelete("{id}")]
     public IActionResult Delete(int id)
     {
-        var product = _products.FirstOrDefault(p => p.Id == id);
-        if (product == null)
-        {
-            return NotFound($"Product with ID {id} not found");
-        }
+        var deleted = _productService.Delete(id);
 
-        _products.Remove(product);
+        if (!deleted)
+            return NotFound($"Product with id {id} not found");
+
         return NoContent();
     }
 }
