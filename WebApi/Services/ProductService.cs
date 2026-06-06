@@ -1,77 +1,53 @@
+using AutoMapper;
 using ProductCatalogAPI.DTOs.ProductDtos;
 using ProductCatalogAPI.Models;
+using ProductCatalogAPI.Repositories;
 
 namespace ProductCatalogAPI.Services;
 
 public class ProductService : IProductService
 {
-    private static List<Product> _products = new()
-    {
-        new Product { Id = 1, Name = "Laptop", Description = "Gaming laptop", Price = 15000000, Stock = 10 },
-        new Product { Id = 2, Name = "Mouse", Description = "Wireless mouse", Price = 250000, Stock = 50 },
-        new Product { Id = 3, Name = "Keyboard", Description = "Mechanical keyboard", Price = 800000, Stock = 30 },
-    };
+    private readonly IProductRepository _productRepository;
+    private readonly IMapper _mapper;
 
-    private ProductResponseDto MapToResponse(Product product)
+    public ProductService(IProductRepository productRepository, IMapper mapper)
     {
-        return new ProductResponseDto
-        {
-            Id = product.Id,
-            Name = product.Name,
-            Description = product.Description,
-            Price = product.Price,
-            Stock = product.Stock,
-            CreatedAt = product.CreatedAt
-        };
+        _productRepository = productRepository;
+        _mapper = mapper;
     }
 
-    public List<ProductResponseDto> GetAll()
+    public async Task<List<ProductResponseDto>> GetAll()
     {
-        return _products.Select(MapToResponse).ToList();
+        var products = await _productRepository.GetAllAsync();
+        return _mapper.Map<List<ProductResponseDto>>(products);
     }
 
-    public ProductResponseDto? GetById(int id)
+    public async Task<ProductResponseDto?> GetById(int id)
     {
-        var product = _products.FirstOrDefault(p => p.Id == id);
+        var product = await _productRepository.GetByIdAsync(id);
         if (product == null) return null;
-        return MapToResponse(product);
+        return _mapper.Map<ProductResponseDto>(product);
     }
 
-    public ProductResponseDto Create(CreateProductDto dto)
+    public async Task<ProductResponseDto> Create(CreateProductDto dto)
     {
-        var product = new Product
-        {
-            Id = _products.Max(p => p.Id) + 1,
-            Name = dto.Name,
-            Description = dto.Description,
-            Price = dto.Price, 
-            Stock = dto.Stock,
-            CreatedAt = DateTime.UtcNow
-        };
+        var product = _mapper.Map<Product>(dto);
+        product.CreatedAt = DateTime.UtcNow;
 
-        _products.Add(product);
-        return MapToResponse(product);
+        var created = await _productRepository.CreateAsync(product);
+        return _mapper.Map<ProductResponseDto>(created);
     }
 
-    public ProductResponseDto? Update(int id, UpdateProductDto dto)
+    public async Task<ProductResponseDto?> Update(int id, UpdateProductDto dto)
     {
-        var existing = _products.FirstOrDefault(p => p.Id == id);
-        if (existing == null) return null;
-
-        existing.Name = dto.Name;
-        existing.Description = dto.Description;
-        existing.Price = dto.Price;
-        existing.Stock = dto.Stock;
-
-        return MapToResponse(existing);
+        var product = _mapper.Map<Product>(dto);
+        var updated = await _productRepository.UpdateAsync(id, product);
+        if (updated == null) return null;
+        return _mapper.Map<ProductResponseDto>(updated);
     }
 
-    public bool Delete(int id)
+    public async Task<bool> Delete(int id)
     {
-        var product = _products.FirstOrDefault(p => p.Id == id);
-        if (product == null) return false;
-
-        _products.Remove(product);
-        return true;
+        return await _productRepository.DeleteAsync(id);
     }
 }

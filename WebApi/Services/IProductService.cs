@@ -4,9 +4,9 @@ namespace ProductCatalogAPI.Services;
 
 public interface IProductService
 {
-    List<ProductResponseDto> GetAll();
-    ProductResponseDto? GetById(int id);
-    ProductResponseDto Create(CreateProductDto dto);
-    ProductResponseDto? Update(int id, UpdateProductDto dto);
-    bool Delete(int id);
+    Task<List<ProductResponseDto>> GetAll();
+    Task<ProductResponseDto?> GetById(int id);
+    Task<ProductResponseDto> Create(CreateProductDto dto);
+    Task<ProductResponseDto?> Update(int id, UpdateProductDto dto);
+    Task<bool> Delete(int id);
 }
