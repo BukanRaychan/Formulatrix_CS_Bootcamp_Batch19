@@ -50,6 +50,29 @@ public class AuthService : IAuthService
         return GenerateToken(user);
     }
 
+    public async Task<bool> UpdateProfileAsync(string userId, UpdateProfileDto dto)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) return false;
+
+        user.FirstName = dto.FirstName;
+        user.LastName = dto.LastName;
+
+        if (dto.CurrentPassword != null && dto.NewPassword != null)
+        {
+            var passwordResult = await _userManager.ChangePasswordAsync(
+                user,
+                dto.CurrentPassword,
+                dto.NewPassword
+            );
+            Console.WriteLine(passwordResult.Succeeded);
+            if (!passwordResult.Succeeded) return false;
+        }
+
+        var updateResult = await _userManager.UpdateAsync(user);
+        return updateResult.Succeeded;
+    }
+
     private AuthResponseDto GenerateToken(ApplicationUser user)
     {
         var key = _configuration["Jwt:Key"]!;
@@ -85,4 +108,5 @@ public class AuthService : IAuthService
             ExpiresAt = expiresAt
         };
     }
+    
 }

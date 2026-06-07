@@ -74,7 +74,7 @@ builder.Services.AddProblemDetails();
 //Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(
     options => {
-        options.Password.RequireDigit = true;
+        options.Password.RequireDigit = false;
         options.Password.RequiredLength = 6;
         options.Password.RequireNonAlphanumeric = false;
         options.Password.RequireUppercase = false;

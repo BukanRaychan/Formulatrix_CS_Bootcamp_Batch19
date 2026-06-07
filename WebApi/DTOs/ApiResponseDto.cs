@@ -7,7 +7,7 @@ public class ApiResponseDto<T>
     public T? Data { get; set; }
     public string? Error { get; set; }
 
-    public static ApiResponseDto<T> SuccessResult(T data, string message = "Success")
+    public static ApiResponseDto<T> SuccessResult(T? data, string message = "Success")
     {
         return new ApiResponseDto<T>
         {
