@@ -1,16 +1,50 @@
-using ProductCatalogAPI.Repositories;
-using ProductCatalogAPI.Services;   
+using System.Text;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using ProductCatalogAPI.Data;
 using ProductCatalogAPI.Exceptions;
-using Microsoft.EntityFrameworkCore;
-using FluentValidation.AspNetCore;
-using FluentValidation;
+using ProductCatalogAPI.Models;
+using ProductCatalogAPI.Repositories;
+using ProductCatalogAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    // Add JWT security definition
+    options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Enter your token like this: Bearer {your token here}"
+    });
+
+    // Make Swagger send the token on every request
+    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
 
 // FluentValidation
 builder.Services.AddFluentValidationAutoValidation();
@@ -21,6 +55,7 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 // Dependency Injection - Services
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(Program));
@@ -35,6 +70,40 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Global Exception Handler
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
+
+//Identity
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(
+    options => {
+        options.Password.RequireDigit = true;
+        options.Password.RequiredLength = 6;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequireUppercase = false;
+    }
+)
+.AddEntityFrameworkStores<AppDbContext>()
+.AddDefaultTokenProviders();
+
+// JWT Authentication
+var jwtKey = builder.Configuration["Jwt:Key"]!;
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+    };
+});
+
 
 var app = builder.Build(); 
 
