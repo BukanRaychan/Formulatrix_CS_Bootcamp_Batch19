@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ProductCatalogAPI.Data;
+using ProductCatalogAPI.Data.Seeders;
 using ProductCatalogAPI.Exceptions;
 using ProductCatalogAPI.Models;
 using ProductCatalogAPI.Repositories;
@@ -60,7 +61,12 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(Program));
 
-// Register seeder
+// Dependency Injection - Seeders
+builder.Services.AddScoped<ISeeder, ApplicationUserSeeder>(); 
+builder.Services.AddScoped<ISeeder, ProductSeeder>();         
+builder.Services.AddScoped<ISeeder, UnitProductSeeder>();
+
+// Register orchestrator
 builder.Services.AddScoped<DataSeeder>();
 
 // Database (SQLite)

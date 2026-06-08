@@ -1,0 +1,64 @@
+using Microsoft.EntityFrameworkCore;
+using ProductCatalogAPI.Data;
+using ProductCatalogAPI.Models;
+
+namespace ProductCatalogAPI.Repositories;
+
+public class UnitProductRepository : IUnitProductRepository
+{
+    private readonly AppDbContext _context;
+
+    public UnitProductRepository(AppDbContext context)
+    {
+        _context = context;
+    }
+
+    public async Task<List<UnitProduct>> GetAllAsync()
+    {
+        return await _context.UnitProducts
+            .Include(u => u.Product)
+            .Include(u => u.User)
+            .ToListAsync();
+    }
+
+    public async Task<UnitProduct?> GetByIdAsync(int id)
+    {
+        return await _context.UnitProducts
+            .Include(u => u.Product)
+            .Include(u => u.User)
+            .FirstOrDefaultAsync(u => u.Id == id);
+    }
+
+    public async Task<List<UnitProduct>> GetByProductIdAsync(int productId)
+    {
+        return await _context.UnitProducts
+            .Include(u => u.Product)
+            .Include(u => u.User)
+            .Where(u => u.ProductId == productId)
+            .ToListAsync();
+    }
+
+    public async Task<UnitProduct> CreateAsync(UnitProduct unitProduct)
+    {
+        _context.UnitProducts.Add(unitProduct);
+        await _context.SaveChangesAsync();
+        return unitProduct;
+    }
+
+    public async Task<UnitProduct?> UpdateAsync(UnitProduct unitProduct)
+    {
+        _context.UnitProducts.Update(unitProduct);
+        await _context.SaveChangesAsync();
+        return unitProduct;
+    }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var unitProduct = await _context.UnitProducts.FirstOrDefaultAsync(u => u.Id == id);
+        if (unitProduct == null) return false;
+
+        _context.UnitProducts.Remove(unitProduct);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+}

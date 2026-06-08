@@ -1,0 +1,75 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using ProductCatalogAPI.DTOs;
+using ProductCatalogAPI.DTOs.UnitProductDtos;
+using ProductCatalogAPI.Services;
+
+namespace ProductCatalogAPI.Controllers;
+
+[Authorize]
+[ApiController]
+[Route("api/[controller]")]
+public class UnitProductsController : ControllerBase
+{
+    private readonly IUnitProductService _unitProductService;
+
+    public UnitProductsController(IUnitProductService unitProductService)
+    {
+        _unitProductService = unitProductService;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var unitProducts = await _unitProductService.GetAllAsync();
+        return Ok(ApiResponseDto<object>.SuccessResult(unitProducts, "Unit products retrieved successfully"));
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var unitProduct = await _unitProductService.GetByIdAsync(id);
+        if (unitProduct == null)
+            return NotFound(ApiResponseDto<object>.ErrorResult(
+                $"UnitProduct with id {id} not found", "Not found"));
+
+        return Ok(ApiResponseDto<object>.SuccessResult(unitProduct, "Unit product retrieved successfully"));
+    }
+
+    [HttpGet("by-product/{productId}")]
+    public async Task<IActionResult> GetByProductId(int productId)
+    {
+        var unitProducts = await _unitProductService.GetByProductIdAsync(productId);
+        return Ok(ApiResponseDto<object>.SuccessResult(unitProducts, "Unit products retrieved successfully"));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] CreateUnitProductDto dto)
+    {
+        var created = await _unitProductService.CreateAsync(dto);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id },
+            ApiResponseDto<object>.SuccessResult(created, "Unit product created successfully"));
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateUnitProductDto dto)
+{
+    var updated = await _unitProductService.UpdateAsync(id, dto);
+    if (updated == null)
+        return NotFound(ApiResponseDto<object>.ErrorResult(
+            $"UnitProduct with id {id} not found", "Not found"));
+
+    return Ok(ApiResponseDto<object>.SuccessResult(updated, "Unit product updated successfully"));
+}
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var deleted = await _unitProductService.DeleteAsync(id);
+        if (!deleted)
+            return NotFound(ApiResponseDto<object>.ErrorResult(
+                $"UnitProduct with id {id} not found", "Not found"));
+
+        return NoContent();
+    }
+}
