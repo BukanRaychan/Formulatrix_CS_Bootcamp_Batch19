@@ -22,7 +22,7 @@ public class ProductsController : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         var products = await _productService.GetAll();
-        return Ok(ApiResponseDto<List<ProductResponseDto>>.SuccessResult(products, "Products retrieved successfully"));
+        return Ok(ApiResponseDto<IEnumerable<ProductResponseDto>>.SuccessResult(products, "Products retrieved successfully"));
     }
 
     [HttpGet("{id}")]

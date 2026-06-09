@@ -13,7 +13,7 @@ public class ProductRepository : IProductRepository
         _context = context;
     }
 
-    public async Task<List<Product>> GetAllAsync()
+    public async Task<IEnumerable<Product>> GetAllAsync()
     {
         return await _context.Products.ToListAsync();
     }
@@ -30,18 +30,11 @@ public class ProductRepository : IProductRepository
         return product;
     }
 
-    public async Task<Product?> UpdateAsync(int id, Product product) 
+    public async Task<Product?> UpdateAsync(Product product)
     {
-        var existing = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
-        if (existing == null) return null;
-
-        existing.Name = product.Name;
-        existing.Description = product.Description;
-        existing.Price = product.Price;
-        existing.Stock = product.Stock;
-
+        _context.Products.Update(product);
         await _context.SaveChangesAsync();
-        return existing;
+        return product;
     }
 
     public async Task<bool> DeleteAsync(int id)

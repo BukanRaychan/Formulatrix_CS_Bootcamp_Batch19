@@ -22,6 +22,7 @@ public class ApplicationUserSeeder : ISeeder
             {
                 FirstName = "Admin",
                 LastName = "User",
+                UserName = "admin",
                 Email = "admin@example.com",
                 CreatedAt = DateTime.UtcNow
             }, "password"),
@@ -30,6 +31,7 @@ public class ApplicationUserSeeder : ISeeder
             {
                 FirstName = "Regular",
                 LastName = "User",
+                UserName = "user",
                 Email = "user@example.com",
                 CreatedAt = DateTime.UtcNow
             }, "password")

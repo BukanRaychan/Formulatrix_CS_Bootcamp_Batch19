@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ProductCatalogAPI.Models;
 
-namespace ProductCatalogAPI.Data.Configurations;
+namespace ProductCatalogAPI.Configurations;
 
 public class UnitProductConfiguration : IEntityTypeConfiguration<UnitProduct>
 {

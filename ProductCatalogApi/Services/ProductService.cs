@@ -16,10 +16,10 @@ public class ProductService : IProductService
         _mapper = mapper;
     }
 
-    public async Task<List<ProductResponseDto>> GetAll()
+    public async Task<IEnumerable<ProductResponseDto>> GetAll()
     {
         var products = await _productRepository.GetAllAsync();
-        return _mapper.Map<List<ProductResponseDto>>(products);
+        return _mapper.Map<IEnumerable<ProductResponseDto>>(products);
     }
 
     public async Task<ProductResponseDto?> GetById(int id)
@@ -33,16 +33,16 @@ public class ProductService : IProductService
     {
         var product = _mapper.Map<Product>(dto);
         product.CreatedAt = DateTime.UtcNow;
-
         var created = await _productRepository.CreateAsync(product);
         return _mapper.Map<ProductResponseDto>(created);
     }
 
     public async Task<ProductResponseDto?> Update(int id, UpdateProductDto dto)
     {
-        var product = _mapper.Map<Product>(dto);
-        var updated = await _productRepository.UpdateAsync(id, product);
-        if (updated == null) return null;
+        var existing = await _productRepository.GetByIdAsync(id);
+        if (existing == null) return null;
+        _mapper.Map(dto, existing);
+        var updated = await _productRepository.UpdateAsync(existing);
         return _mapper.Map<ProductResponseDto>(updated);
     }
 

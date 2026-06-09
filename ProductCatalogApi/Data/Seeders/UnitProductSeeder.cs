@@ -15,8 +15,8 @@ public class UnitProductSeeder : ISeeder
     {
         if (_context.UnitProducts.Any()) return;
 
-        var firstProduct = _context.Products.FirstOrDefault();
-        var firstUser = _context.Users.FirstOrDefault();
+        var firstProduct = _context.Products.OrderBy(p => p.Id).FirstOrDefault();
+        var firstUser = _context.Users.OrderBy(u => u.Id).FirstOrDefault();
 
         if (firstProduct == null || firstUser == null) return;
 

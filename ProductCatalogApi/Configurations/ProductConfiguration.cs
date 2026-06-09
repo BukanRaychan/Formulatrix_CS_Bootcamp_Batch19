@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ProductCatalogAPI.Models;
 
-namespace ProductCatalogAPI.Data.Configurations;
+namespace ProductCatalogAPI.Configurations;
 
 public class ProductConfiguration : IEntityTypeConfiguration<Product>
 {
@@ -33,7 +33,6 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         // Relationship
         builder.HasMany(p => p.UnitProducts)
             .WithOne(u => u.Product)
-            .HasForeignKey(u => u.ProductId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .HasForeignKey(u => u.ProductId);
     }
 }

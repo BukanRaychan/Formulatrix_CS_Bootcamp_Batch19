@@ -10,5 +10,6 @@ public class UnitProductProfile : Profile
     {
         CreateMap<UnitProduct, UnitProductResponseDto>();
         CreateMap<CreateUnitProductDto, UnitProduct>();
+        CreateMap<UpdateUnitProductDto, UnitProduct>();
     }
 }

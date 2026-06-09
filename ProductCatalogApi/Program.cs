@@ -53,9 +53,11 @@ builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 // Dependency Injection - Repositories
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IUnitProductRepository, UnitProductRepository>();
 
 // Dependency Injection - Services
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IUnitProductService, UnitProductService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 // AutoMapper
