@@ -21,14 +21,14 @@ public class ProductsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var products = await _productService.GetAll();
+        var products = await _productService.GetAllAsync();
         return Ok(ApiResponseDto<List<ProductResponseDto>>.SuccessResult(products, "Products retrieved successfully"));
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     { 
-        var product = await _productService.GetById(id);
+        var product = await _productService.GetByIdAsync(id);
 
         if (product == null)
             return NotFound($"Product with id {id} not found");
@@ -39,7 +39,7 @@ public class ProductsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateProductDto dto)
     {
-        var created = await _productService.Create(dto);
+        var created = await _productService.CreateAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = created.Id },
             ApiResponseDto<ProductResponseDto>.SuccessResult(created, "Product created successfully"));
     }
@@ -47,7 +47,7 @@ public class ProductsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateProductDto dto)
     {
-        var updated = await _productService.Update(id, dto);
+        var updated = await _productService.UpdateAsync(id, dto);
         if (updated == null)
             return NotFound(ApiResponseDto<ProductResponseDto>.ErrorResult($"Product with id {id} not found", "Not found"));
         return Ok(ApiResponseDto<ProductResponseDto>.SuccessResult(updated, "Product updated successfully"));
@@ -56,7 +56,7 @@ public class ProductsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var deleted = await _productService.Delete(id);
+        var deleted = await _productService.DeleteAsync(id);
         if (!deleted)   
             return NotFound(ApiResponseDto<ProductResponseDto>.ErrorResult($"Product with id {id} not found", "Not found"));
 
