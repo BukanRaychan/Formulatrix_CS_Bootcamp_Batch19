@@ -28,18 +28,16 @@ public class ApplicationUserSeeder : ISeeder
                 FirstName = "Admin",
                 LastName = "User",
                 Email = "admin@example.com",
-                UserName = "admin@example.com",
                 CreatedAt = DateTime.UtcNow
-            }, "Admin123"),
+            }, "password"),
 
             (new ApplicationUser
             {
-                FirstName = "Ray",
-                LastName = "Chan",
-                Email = "ray@example.com",
-                UserName = "ray@example.com",
+                FirstName = "Regular",
+                LastName = "User",
+                Email = "user@example.com",
                 CreatedAt = DateTime.UtcNow
-            }, "Password123")
+            }, "password")
         };
 
         foreach (var (user, password) in users)

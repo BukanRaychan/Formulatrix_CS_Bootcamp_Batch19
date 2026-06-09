@@ -11,8 +11,8 @@ using ProductCatalogAPI.Data;
 namespace WebApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260608073557_UpdateUnitProduct")]
-    partial class UpdateUnitProduct
+    [Migration("20260609013005_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
