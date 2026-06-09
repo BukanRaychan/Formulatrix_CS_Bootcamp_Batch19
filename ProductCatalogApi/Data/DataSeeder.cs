@@ -11,11 +11,11 @@ public class DataSeeder
         _seeders = seeders;
     }
 
-    public void Seed()
+    public async Task SeedAsync()
     {
         foreach (var seeder in _seeders)
         {
-            seeder.Seed();
+            await seeder.SeedAsync();
         }
     }
 }

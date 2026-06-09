@@ -12,12 +12,7 @@ public class ApplicationUserSeeder : ISeeder
         _userManager = userManager;
     }
 
-    public void Seed()
-    {
-        SeedAsync().GetAwaiter().GetResult();
-    }
-
-    private async Task SeedAsync()
+    public async Task SeedAsync()
     {
         if (_userManager.Users.Any()) return;
 

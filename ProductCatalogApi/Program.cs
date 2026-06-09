@@ -113,18 +113,15 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build(); 
 
-// Run migrations and seeder on startup
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     context.Database.EnsureCreated();
 
-    // Only seeds if SeedDatabase is true in appsettings.json
-    var shouldSeed = builder.Configuration.GetValue<bool>("SeedDatabase");
-    if (shouldSeed)
+    if (builder.Configuration.GetValue<bool>("SeedDatabase"))
     {
         var seeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
-        seeder.Seed();
+        await seeder.SeedAsync();
     }
 }
 

@@ -11,7 +11,7 @@ public class ProductSeeder : ISeeder
         _context = context;
     }
 
-    public void Seed()
+    public async Task SeedAsync()
     {
         if (_context.Products.Any()) return;
 
@@ -44,6 +44,6 @@ public class ProductSeeder : ISeeder
         };
 
         _context.Products.AddRange(products);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 }
