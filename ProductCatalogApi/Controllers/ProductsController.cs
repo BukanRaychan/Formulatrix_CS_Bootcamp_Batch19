@@ -22,7 +22,7 @@ public class ProductsController : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         var products = await _productService.GetAll();
-        return Ok(ApiResponseDto<IEnumerable<ProductResponseDto>>.SuccessResult(products, "Products retrieved successfully"));
+        return Ok(ApiResponseDto<List<ProductResponseDto>>.SuccessResult(products, "Products retrieved successfully"));
     }
 
     [HttpGet("{id}")]
@@ -59,6 +59,7 @@ public class ProductsController : ControllerBase
         var deleted = await _productService.Delete(id);
         if (!deleted)   
             return NotFound(ApiResponseDto<ProductResponseDto>.ErrorResult($"Product with id {id} not found", "Not found"));
-        return Ok(ApiResponseDto<ProductResponseDto>.SuccessResult(null, "Product deleted successfully"));
+
+        return NoContent();
     }
 }

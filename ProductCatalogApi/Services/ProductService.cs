@@ -16,20 +16,20 @@ public class ProductService : IProductService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<ProductResponseDto>> GetAll()
+    public async Task<List<ProductResponseDto>> GetAllAsync()
     {
         var products = await _productRepository.GetAllAsync();
-        return _mapper.Map<IEnumerable<ProductResponseDto>>(products);
+        return _mapper.Map<List<ProductResponseDto>>(products);
     }
 
-    public async Task<ProductResponseDto?> GetById(int id)
+    public async Task<ProductResponseDto?> GetByIdAsync(int id)
     {
         var product = await _productRepository.GetByIdAsync(id);
         if (product == null) return null;
         return _mapper.Map<ProductResponseDto>(product);
     }
 
-    public async Task<ProductResponseDto> Create(CreateProductDto dto)
+    public async Task<ProductResponseDto> CreateAsync(CreateProductDto dto)
     {
         var product = _mapper.Map<Product>(dto);
         product.CreatedAt = DateTime.UtcNow;
@@ -37,7 +37,7 @@ public class ProductService : IProductService
         return _mapper.Map<ProductResponseDto>(created);
     }
 
-    public async Task<ProductResponseDto?> Update(int id, UpdateProductDto dto)
+    public async Task<ProductResponseDto?> UpdateAsync(int id, UpdateProductDto dto)
     {
         var existing = await _productRepository.GetByIdAsync(id);
         if (existing == null) return null;
@@ -46,7 +46,7 @@ public class ProductService : IProductService
         return _mapper.Map<ProductResponseDto>(updated);
     }
 
-    public async Task<bool> Delete(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
         return await _productRepository.DeleteAsync(id);
     }

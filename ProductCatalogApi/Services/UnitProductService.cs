@@ -41,9 +41,7 @@ public class UnitProductService : IUnitProductService
         unitProduct.CreatedAt = DateTime.UtcNow;
 
         var created = await _unitProductRepository.CreateAsync(unitProduct);
-
-        var result = await _unitProductRepository.GetByIdAsync(created.Id);
-        return _mapper.Map<UnitProductResponseDto>(result!);
+        return _mapper.Map<UnitProductResponseDto>(created);
     }
 
     public async Task<UnitProductResponseDto?> UpdateAsync(int id, UpdateUnitProductDto dto)
@@ -51,13 +49,10 @@ public class UnitProductService : IUnitProductService
         var existing = await _unitProductRepository.GetByIdAsync(id);
         if (existing == null) return null;
 
-        existing.SerialNumber = dto.SerialNumber;
-        existing.ProductId = dto.ProductId;
-        existing.UserId = dto.UserId;
+        _mapper.Map(dto, existing);
 
         var updated = await _unitProductRepository.UpdateAsync(existing);
-        var result = await _unitProductRepository.GetByIdAsync(updated!.Id);
-        return _mapper.Map<UnitProductResponseDto>(result!);
+        return _mapper.Map<UnitProductResponseDto>(updated);
     }
 
     public async Task<bool> DeleteAsync(int id)
