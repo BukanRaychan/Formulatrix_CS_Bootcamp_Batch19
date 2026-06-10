@@ -24,6 +24,10 @@ public class UnitProductConfiguration : IEntityTypeConfiguration<UnitProduct>
         builder.HasIndex(p => p.SerialNumber)
                 .IsUnique();
 
+        builder.HasIndex(u => u.ProductId);
+
+        builder.HasIndex(u => u.UserId);
+
         builder.HasOne(u => u.Product)
             .WithMany(p => p.UnitProducts)
             .HasForeignKey(u => u.ProductId)

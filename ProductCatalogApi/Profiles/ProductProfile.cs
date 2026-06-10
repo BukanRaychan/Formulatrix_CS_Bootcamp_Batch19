@@ -16,8 +16,6 @@ public class ProductProfile : Profile
             .ForMember(dest => dest.Description,
                 opt => opt.MapFrom((src, dest) => src.Description ?? dest.Description))
             .ForMember(dest => dest.Price,
-                opt => opt.MapFrom((src, dest) => src.Price ?? dest.Price))
-            .ForMember(dest => dest.Stock,
-                opt => opt.MapFrom((src, dest) => src.Stock ?? dest.Stock));
+                opt => opt.MapFrom((src, dest) => src.Price ?? dest.Price));
     }
 }

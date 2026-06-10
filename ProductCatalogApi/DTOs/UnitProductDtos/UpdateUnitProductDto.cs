@@ -3,6 +3,6 @@ namespace ProductCatalogAPI.DTOs.UnitProductDtos;
 public class UpdateUnitProductDto
 {
     public string? SerialNumber { get; set; }
-    public int ProductId { get; set; }
-    public string UserId { get; set; } = string.Empty;
+    public int? ProductId { get; set; }
+    public string? UserId { get; set; }
 }

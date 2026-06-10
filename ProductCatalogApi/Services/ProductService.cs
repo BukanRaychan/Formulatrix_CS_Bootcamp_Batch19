@@ -26,7 +26,10 @@ public class ProductService : IProductService
     {
         var product = await _productRepository.GetByIdAsync(id);
         if (product == null) return null;
-        return _mapper.Map<ProductResponseDto>(product);
+
+        var productResponse = _mapper.Map<ProductResponseDto>(product);
+        productResponse.Stock = await _productRepository.GetStockCountAsync(id);
+        return productResponse;
     }
 
     public async Task<ProductResponseDto> CreateAsync(CreateProductDto dto)

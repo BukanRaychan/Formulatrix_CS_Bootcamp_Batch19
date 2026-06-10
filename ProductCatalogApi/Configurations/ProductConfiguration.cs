@@ -22,10 +22,6 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
             .IsRequired()
             .HasColumnType("decimal(18,2)");
 
-        builder.Property(p => p.Stock)
-            .IsRequired()
-            .HasDefaultValue(0);
-
         builder.Property(p => p.CreatedAt)
             .IsRequired()
             .HasDefaultValueSql("datetime('now')");

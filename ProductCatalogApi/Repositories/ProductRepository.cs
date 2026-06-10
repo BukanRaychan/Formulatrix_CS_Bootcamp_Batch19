@@ -46,4 +46,10 @@ public class ProductRepository : IProductRepository
         await _context.SaveChangesAsync();
         return true;
     }
+
+    public async Task<int> GetStockCountAsync(int productId)
+    {
+        return await _context.UnitProducts
+            .CountAsync(u => u.ProductId == productId);
+    }
 }

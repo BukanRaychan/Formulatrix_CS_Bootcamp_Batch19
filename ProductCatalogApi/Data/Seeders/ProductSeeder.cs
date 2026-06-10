@@ -22,7 +22,6 @@ public class ProductSeeder : ISeeder
                 Name = "Laptop",
                 Description = "High performance gaming laptop",
                 Price = 15000000,
-                Stock = 10,
                 CreatedAt = DateTime.UtcNow
             },
             new Product
@@ -30,7 +29,6 @@ public class ProductSeeder : ISeeder
                 Name = "Mouse",
                 Description = "Wireless ergonomic mouse",
                 Price = 250000,
-                Stock = 50,
                 CreatedAt = DateTime.UtcNow
             },
             new Product
@@ -38,7 +36,6 @@ public class ProductSeeder : ISeeder
                 Name = "Keyboard",
                 Description = "Mechanical RGB keyboard",
                 Price = 800000,
-                Stock = 30,
                 CreatedAt = DateTime.UtcNow
             }
         };
