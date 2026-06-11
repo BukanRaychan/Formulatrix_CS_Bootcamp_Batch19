@@ -1,8 +1,6 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
 using ProductCatalogAPI.DTOs.AuthDtos;
 using ProductCatalogAPI.Models;
 
@@ -11,15 +9,13 @@ namespace ProductCatalogAPI.Services;
 public class AuthService : IAuthService
 {
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IConfiguration _configuration;
 
-    public AuthService(UserManager<ApplicationUser> userManager, IConfiguration configuration)
+    public AuthService(UserManager<ApplicationUser> userManager)
     {
         _userManager = userManager;
-        _configuration = configuration;
     }
 
-    public async Task<AuthResponseDto?> RegisterAsync(RegisterDto dto)
+    public async Task<AuthResultDto?> RegisterAsync(RegisterDto dto)
     {
         var existingUser = await _userManager.FindByEmailAsync(dto.Email);
         if (existingUser != null) return null;
@@ -36,10 +32,10 @@ public class AuthService : IAuthService
         var result = await _userManager.CreateAsync(user, dto.Password);
         if (!result.Succeeded) return null;
 
-        return GenerateToken(user);
+        return BuildAuthResult(user);
     }
 
-    public async Task<AuthResponseDto?> LoginAsync(LoginDto dto)
+    public async Task<AuthResultDto?> LoginAsync(LoginDto dto)
     {
         var user = await _userManager.FindByEmailAsync(dto.Email);
         if (user == null) return null;
@@ -47,7 +43,7 @@ public class AuthService : IAuthService
         var passwordValid = await _userManager.CheckPasswordAsync(user, dto.Password);
         if (!passwordValid) return null;
 
-        return GenerateToken(user);
+        return BuildAuthResult(user);
     }
 
     public async Task<bool> UpdateProfileAsync(string userId, UpdateProfileDto dto)
@@ -65,7 +61,6 @@ public class AuthService : IAuthService
                 dto.CurrentPassword,
                 dto.NewPassword
             );
-            Console.WriteLine(passwordResult.Succeeded);
             if (!passwordResult.Succeeded) return false;
         }
 
@@ -73,14 +68,10 @@ public class AuthService : IAuthService
         return updateResult.Succeeded;
     }
 
-    private AuthResponseDto GenerateToken(ApplicationUser user)
+    // Replaces GenerateToken — builds claims instead of a JWT
+    private AuthResultDto BuildAuthResult(ApplicationUser user)
     {
-        var key = _configuration["Jwt:Key"]!;
-        var issuer = _configuration["Jwt:Issuer"]!;
-        var audience = _configuration["Jwt:Audience"]!;
-        var expiresAt = DateTime.UtcNow.AddHours(24);
-
-        var claims = new[]
+        var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id),
             new Claim(ClaimTypes.Email, user.Email!),
@@ -88,25 +79,14 @@ public class AuthService : IAuthService
             new Claim(ClaimTypes.Surname, user.LastName),
         };
 
-        var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
-        var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-        var token = new JwtSecurityToken(
-            issuer: issuer,
-            audience: audience,
-            claims: claims,
-            expires: expiresAt,
-            signingCredentials: credentials
-        );
-
-        return new AuthResponseDto
+        return new AuthResultDto
         {
-            Token = new JwtSecurityTokenHandler().WriteToken(token),
+            Principal = new ClaimsPrincipal(identity),
             Email = user.Email!,
             FirstName = user.FirstName,
-            LastName = user.LastName,
-            ExpiresAt = expiresAt
+            LastName = user.LastName
         };
     }
-    
 }

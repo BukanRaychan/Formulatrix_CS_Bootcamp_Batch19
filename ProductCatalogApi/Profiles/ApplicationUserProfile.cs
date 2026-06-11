@@ -9,5 +9,6 @@ public class ApplicationUserProfile : Profile
     public ApplicationUserProfile()
     {
         CreateMap<ApplicationUser, UserInfoResponseDto>();
+        CreateMap<AuthResultDto, UserInfoResponseDto>();
     }
 }
