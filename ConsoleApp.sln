@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductCatalogApi", "Produc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ngulik", "Ngulik\Ngulik.csproj", "{452A64A8-EE99-436D-AB9D-F8EAE3B97E97}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckersBoardGame", "CheckersBoardGame\CheckersBoardGame.csproj", "{1DFED74F-7AAF-4214-AAF7-EFC920C1F954}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,5 +31,9 @@ Global
 		{452A64A8-EE99-436D-AB9D-F8EAE3B97E97}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{452A64A8-EE99-436D-AB9D-F8EAE3B97E97}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{452A64A8-EE99-436D-AB9D-F8EAE3B97E97}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DFED74F-7AAF-4214-AAF7-EFC920C1F954}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DFED74F-7AAF-4214-AAF7-EFC920C1F954}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DFED74F-7AAF-4214-AAF7-EFC920C1F954}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DFED74F-7AAF-4214-AAF7-EFC920C1F954}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
