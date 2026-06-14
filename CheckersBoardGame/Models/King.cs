@@ -9,6 +9,6 @@ public class King : Piece
 
     public override (int dx, int dy)[] GetMoveOffsets()
     {
-        return [(-1, -1), (+1, -1), (-1, +1), (+1, +1)];
+        return new[] { (-1, -1), (+1, -1), (-1, +1), (+1, +1) };
     }
 }
