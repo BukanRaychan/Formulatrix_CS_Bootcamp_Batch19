@@ -135,9 +135,9 @@ classDiagram
     IGameEngine <|.. GameEngine
     Piece <|-- Man
     Piece <|-- King
-    Board *-- "0..*" Piece : has
-    Board --> "2" Player : initialize
-    Board --> LegalMove : returns
+    IBoard *-- "0..*" Piece : has
+    IBoard --> "2" Player : initialize
+    IBoard --> LegalMove : returns
     GameEngine --> IBoard : uses
     GameEngine o-- Player : owns
     GameEngine --> Piece : uses
