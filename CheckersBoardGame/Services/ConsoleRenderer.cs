@@ -1,15 +1,18 @@
 using CheckersBoardGame.Models;
 using CheckersBoardGame.Interfaces;
+using CheckersBoardGame.Events;
 
 namespace CheckersBoardGame.Services;
 
-public class ConsoleRenderer
+public class ConsoleRenderer : IConsoleRenderer
 {
     private readonly IBoard _board;
+    private string EventMessage { get; set; }
 
     public ConsoleRenderer(IBoard board)
     {
         _board = board;
+        EventMessage = "";
     }
 
     public void Render()
@@ -34,13 +37,26 @@ public class ConsoleRenderer
                 else
                 {
                     var ch = p is King ? 'K' : 'M';
-                    var color = p.Owner.IsPlayerOne ? ConsoleColor.Blue : ConsoleColor.Red;
-                    Console.ForegroundColor = color;
+                    Console.ForegroundColor = p.Owner.Color;
                     Console.Write($" {ch} ");
                 }
                 Console.ResetColor();
             }
             Console.WriteLine();
         }
+
+        if (EventMessage != "")
+        {
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.BackgroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"{EventMessage}");
+            Console.ResetColor();
+            EventMessage = "";
+        }
+    }
+
+    public void MoveEvent(object? s, MoveEventArgs e)
+    {
+        EventMessage = $"{e.Player.Name} moved from ({e.From.X},{e.From.Y}) to ({e.To.X},{e.To.Y}){(e.Crowned ? " and was crowned!" : "")} ";
     }
 }

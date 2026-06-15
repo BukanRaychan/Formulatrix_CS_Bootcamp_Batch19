@@ -1,0 +1,156 @@
+classDiagram
+    class Board {
+        -Piece?[,] _grid
+        +int Size
+        +Board(BoardSize size)
+        +void Initialize(Player playerOne, Player playerTwo)
+        +Piece? GetPieceAt(int x, int y)
+        +bool TryMove(Piece piece, int toX, int toY, out bool crowned, out bool captured, out bool hasMoreCapture)
+        +IEnumerable<.LegalMove> GetLegalMoves(Player player)
+        +IEnumerable<.LegalMove> GetLegalMoves(Piece piece)
+        +bool HasAnyMoves(Player player)
+        +bool HasCaptureMoves(Player player)
+        +IEnumerable<.Piece> AllPieces()
+        -void PerformMove(Piece piece, int toX, int toY, bool capture, out bool crowned, out bool hasMoreCapture)
+        -bool IsInside(int x, int y)
+    }
+
+    class GameEngine {
+        -IBoard _board
+        -Player _playerOne
+        -Player _playerTwo
+        -Player _currentPlayer
+        -Piece? _continuingPiece
+        +event EventHandler<MoveEventArgs>? MoveMade
+        +event EventHandler<GameEndedEventArgs>? GameEnded
+        +Player CurrentPlayer
+        +bool IsGameOver
+        +Player? Winner
+        +GameEngine(IBoard board, string playerOneName, string playerTwoName)
+        +void Start()
+        +bool TryMove(int fromX, int fromY, int toX, int toY, out string message)
+        -Player GetOpponent()
+        -void EndGame(Player winner, string reason)
+    }
+
+    class IGameEngine {
+        <<interface>>
+        +event EventHandler<Events.MoveEventArgs>? MoveMade
+        +event EventHandler<Events.GameEndedEventArgs>? GameEnded
+        +Player CurrentPlayer
+        +bool IsGameOver
+        +Player? Winner
+        +void Start()
+        +bool TryMove(int fromX, int fromY, int toX, int toY, out string message)
+    }
+
+    class Piece {
+        <<abstract>>
+        +Player Owner
+        +(int X, int Y) Position
+        +abstract (int dx, int dy)[] GetMoveOffsets()
+        +void MoveTo(int x, int y)
+    }
+
+    class Man {
+        +Man(Player owner, (int X, int Y) position)
+        +override (int dx, int dy)[] GetMoveOffsets()
+    }
+
+    class King {
+        +King(Player owner, (int X, int Y) position)
+        +override (int dx, int dy)[] GetMoveOffsets()
+    }
+
+    class LegalMove {
+        +Piece Piece
+        +int ToX
+        +int ToY
+        +bool IsCapture
+    }
+
+    class Player {
+        +string Name
+        +ConsoleColor Color
+        +bool IsPlayerOne
+        +Player(string name, PieceColor color, bool isPlayerOne = false)
+    }
+
+    class ConsoleRenderer {
+        -IBoard _board
+        -string EventMessage
+        +ConsoleRenderer(IBoard board)
+        +void Render()
+        +void MoveEvent(object? o, MoveEventArgs e)
+    }
+
+    class IConsoleRenderer {
+        <<interface>>
+        +void Render()
+        +void MoveEvent(object? sender, MoveEventArgs e)
+    }
+
+    class IBoard {
+        <<interface>>
+        -Piece?[,] _grid
+        +int Size
+        +void Initialize(Player playerOne, Player playerTwo)
+        +Piece? GetPieceAt(int x, int y)
+        +bool TryMove(Piece piece, int toX, int toY, out bool crowned, out bool captured, out bool hasMoreCapture)
+        +IEnumerable<.Piece> AllPieces()
+        +IEnumerable<.LegalMove> GetLegalMoves(Player player)
+        +IEnumerable<.LegalMove> GetLegalMoves(Piece piece)
+        +bool HasAnyMoves(Player player)
+    }
+
+    class MoveEventArgs {
+        +Player Player
+        +(int X, int Y) From
+        +(int X, int Y) To
+        +Piece Piece
+        +bool Crowned
+    }
+
+    class GameEndedEventArgs {
+        +Player Winner
+        +string Reason
+    }
+
+    class EventArgs {
+
+    }
+
+    class ConsoleColor {
+        <<enumeration>>
+    }
+
+    class BoardSize {
+        <<enumeration>>
+        Small
+        Standard
+        Large
+        VeryLarge
+    }
+
+    IGameEngine <|.. GameEngine
+    Piece <|-- Man
+    Piece <|-- King
+    Board *-- "0..*" Piece : has
+    Board --> "2" Player : initialize
+    Board --> LegalMove : returns
+    GameEngine --> IBoard : uses
+    GameEngine o-- Player : owns
+    GameEngine --> Piece : uses
+    GameEngine --> MoveEventArgs : emits
+    GameEngine --> GameEndedEventArgs : emits
+    Piece --> Player : owned by
+    LegalMove --> Piece : holds
+    ConsoleRenderer --> IConsoleRenderer : implements
+    ConsoleRenderer --> IBoard : depends on
+    IConsoleRenderer <|.. ConsoleRenderer
+    MoveEventArgs --> Player
+    MoveEventArgs --> Piece
+    GameEndedEventArgs --> Player
+    Board ..|> IBoard
+    EventArgs <| -- GameEndedEventArgs
+    EventArgs <| -- MoveEventArgs

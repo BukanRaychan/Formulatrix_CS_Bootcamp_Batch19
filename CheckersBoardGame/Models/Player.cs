@@ -5,10 +5,10 @@ namespace CheckersBoardGame.Models;
 public class Player
 {
     public string Name { get; }
-    public PieceColor Color { get; }
+    public ConsoleColor Color { get; }
     public bool IsPlayerOne { get; }
 
-    public Player(string name, PieceColor color, bool isPlayerOne = false)
+    public Player(string name, ConsoleColor color, bool isPlayerOne = false)
     {
         Name = name;
         Color = color;

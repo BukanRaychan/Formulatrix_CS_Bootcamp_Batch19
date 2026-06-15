@@ -23,8 +23,8 @@ public class GameEngine : IGameEngine
     public GameEngine(IBoard board, string playerOneName, string playerTwoName)
     {
         _board = board;
-        _playerOne = new Player(playerOneName, PieceColor.White, isPlayerOne: true);
-        _playerTwo = new Player(playerTwoName, PieceColor.Black, isPlayerOne: false);
+        _playerOne = new Player(playerOneName, ConsoleColor.Blue, isPlayerOne: true);
+        _playerTwo = new Player(playerTwoName, ConsoleColor.Red, isPlayerOne: false);
         _currentPlayer = _playerOne;
     }
 

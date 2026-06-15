@@ -13,14 +13,11 @@ var p2 = development ? "Hay" :Console.ReadLine() ?? "Player2";
 
 IBoard board = new Board(BoardSize.Standard);
 var engine = new GameEngine(board, p1, p2);
-var renderer = new ConsoleRenderer(board);
+IConsoleRenderer renderer = new ConsoleRenderer(board);
 
-engine.MoveMade += (s, e) =>
-{
-    Console.WriteLine($"{e.Player.Name} moved from ({e.From.X},{e.From.Y}) to ({e.To.X},{e.To.Y}){(e.Crowned ? " and was crowned!" : "")} ");
-};
+engine.MoveMade += renderer.MoveEvent;
 
-engine.GameEnded += (s, e) =>
+engine.GameEnded += (o, e) =>
 {
     Console.WriteLine($"Game over: {e.Winner.Name} wins. {e.Reason}");
 };
