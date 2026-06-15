@@ -53,22 +53,20 @@ public class Board : IBoard
 
             if (stepX == toX && stepY == toY)
             {
-                if (HasCaptureMoves(piece.Owner))
-                    return false;
-
-                return PerformMove(piece, toX, toY, false, out crowned, out hasMoreCapture);
+                if (HasCaptureMoves(piece.Owner)) return false;
+                PerformMove(piece, toX, toY, false, out crowned, out hasMoreCapture);
+                
+                return true;
             }
 
             if (jumpX == toX && jumpY == toY)
             {
                 var capturedPiece = GetPieceAt(stepX, stepY);
-                if (capturedPiece is null || capturedPiece.Owner == piece.Owner)
-                    return false;
+                if (capturedPiece is null || capturedPiece.Owner == piece.Owner) return false;
 
                 _grid[stepY, stepX] = null;
                 captured = true;
-                if (!PerformMove(piece, toX, toY, true, out crowned, out hasMoreCapture))
-                    return false;
+                PerformMove(piece, toX, toY, true, out crowned, out hasMoreCapture);
 
                 return true;
             }
@@ -77,7 +75,7 @@ public class Board : IBoard
         return false;
     }
 
-    private bool PerformMove(Piece piece, int toX, int toY, bool capture, out bool crowned, out bool hasMoreCapture)
+    private void PerformMove(Piece piece, int toX, int toY, bool capture, out bool crowned, out bool hasMoreCapture)
     {
         crowned = false;
         hasMoreCapture = false;
@@ -102,8 +100,6 @@ public class Board : IBoard
         {
             hasMoreCapture = GetLegalMoves(piece).Any(move => move.IsCapture);
         }
-
-        return true;
     }
 
     public IEnumerable<LegalMove> GetLegalMoves(Player player)
