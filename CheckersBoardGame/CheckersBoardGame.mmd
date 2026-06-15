@@ -145,7 +145,6 @@ classDiagram
     GameEngine --> GameEndedEventArgs : emits
     Piece --> Player : owned by
     LegalMove --> Piece : holds
-    ConsoleRenderer --> IConsoleRenderer : implements
     ConsoleRenderer --> IBoard : depends on
     IConsoleRenderer <|.. ConsoleRenderer
     MoveEventArgs --> Player
