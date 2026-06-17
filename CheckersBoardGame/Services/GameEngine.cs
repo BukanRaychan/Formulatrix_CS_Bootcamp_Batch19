@@ -9,14 +9,13 @@ public class GameEngine : IGameEngine
 {
     private readonly IBoard _board;
     private readonly Player _playerOne;
-    private readonly Player _playerTwo;
-    private Player _currentPlayer;
+    private readonly Player _playerTwo;    
     private Piece? _continuingPiece;
 
     public event EventHandler<MoveEventArgs>? MoveMade;
     public event EventHandler<GameEndedEventArgs>? GameEnded;
 
-    public Player CurrentPlayer => _currentPlayer;
+    public Player CurrentPlayer {get;private set;}
     public bool IsGameOver { get; private set; }
     public Player? Winner { get; private set; }
 
@@ -25,7 +24,7 @@ public class GameEngine : IGameEngine
         _board = board;
         _playerOne = new Player(playerOneName, ConsoleColor.Blue, isPlayerOne: true);
         _playerTwo = new Player(playerTwoName, ConsoleColor.Red, isPlayerOne: false);
-        _currentPlayer = _playerOne;
+        CurrentPlayer = _playerOne;
     }
 
     public void Start()
@@ -33,7 +32,7 @@ public class GameEngine : IGameEngine
         IsGameOver = false;
         Winner = null;
         _continuingPiece = null;
-        _currentPlayer = _playerOne;
+        CurrentPlayer = _playerOne;
         _board.Initialize(_playerOne, _playerTwo);
     }
 
@@ -53,7 +52,7 @@ public class GameEngine : IGameEngine
             return false;
         }
 
-        if (piece.Owner != _currentPlayer)
+        if (piece.Owner != CurrentPlayer)
         {
             message = "That is not your piece.";
             return false;
@@ -71,7 +70,7 @@ public class GameEngine : IGameEngine
             return false;
         }
 
-        MoveMade?.Invoke(this, new MoveEventArgs(_currentPlayer, (fromX, fromY), (toX, toY), piece, crowned));
+        MoveMade?.Invoke(this, new MoveEventArgs(CurrentPlayer, (fromX, fromY), (toX, toY), piece, crowned));
 
         if (captured && hasMoreCapture)
         {
@@ -85,15 +84,15 @@ public class GameEngine : IGameEngine
         var opponent = GetOpponent();
         if (!_board.HasAnyMoves(opponent))
         {
-            EndGame(_currentPlayer, "The opponent has no legal moves left.");
+            EndGame(CurrentPlayer, "The opponent has no legal moves left.");
             return true;
         }
 
-        _currentPlayer = opponent;
+        CurrentPlayer = opponent;
         return true;
     }
 
-    private Player GetOpponent() => _currentPlayer == _playerOne ? _playerTwo : _playerOne;
+    private Player GetOpponent() => CurrentPlayer == _playerOne ? _playerTwo : _playerOne;
 
     private void EndGame(Player winner, string reason)
     {

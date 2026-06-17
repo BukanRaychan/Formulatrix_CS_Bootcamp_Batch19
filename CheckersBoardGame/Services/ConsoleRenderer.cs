@@ -7,12 +7,12 @@ namespace CheckersBoardGame.Services;
 public class ConsoleRenderer : IConsoleRenderer
 {
     private readonly IBoard _board;
-    private string EventMessage { get; set; }
+    private string _eventMessage;
 
     public ConsoleRenderer(IBoard board)
     {
         _board = board;
-        EventMessage = "";
+        _eventMessage = "";
     }
 
     public void Render()
@@ -45,18 +45,18 @@ public class ConsoleRenderer : IConsoleRenderer
             Console.WriteLine();
         }
 
-        if (EventMessage != "")
+        if (_eventMessage != "")
         {
             Console.ForegroundColor = ConsoleColor.Black;
             Console.BackgroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"{EventMessage}");
+            Console.WriteLine($"{_eventMessage}");
             Console.ResetColor();
-            EventMessage = "";
+            _eventMessage = "";
         }
     }
 
     public void MoveEvent(object? s, MoveEventArgs e)
     {
-        EventMessage = $"{e.Player.Name} moved from ({e.From.X},{e.From.Y}) to ({e.To.X},{e.To.Y}){(e.Crowned ? " and was crowned!" : "")} ";
+        _eventMessage = $"{e.Player.Name} moved from ({e.From.X},{e.From.Y}) to ({e.To.X},{e.To.Y}){(e.Crowned ? " and was crowned!" : "")} ";
     }
 }
