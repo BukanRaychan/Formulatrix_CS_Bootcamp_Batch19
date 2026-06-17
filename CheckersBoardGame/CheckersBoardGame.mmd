@@ -11,10 +11,18 @@ classDiagram
     }
 
     namespace DTOs {
-        class GameResponseDto{
+        class GameResponseDto {
             +bool Success
             +Player CurrentPlayer
             +Board Board 
+        }
+
+        class CreateGameDto {
+            +string PlayerOneName
+            +string PlayerTwoName
+            +ConsoleColor PlayerOnePreferenceColor
+            +ConsoleColor PlayerTwoPreferenceColor
+            +BoardSize Size
         }
     }
 
@@ -22,10 +30,10 @@ classDiagram
         class GameController {
             -IGameService _gameService            
             +List~Player~ Player
-            +event EventHandler<.MoveEventArgs>? MoveMade
-            +event EventHandler<.GameEndedEventArgs>? GameEnded
+            +event EventHandler~MoveEventArgs~? MoveMade
+            +event EventHandler~GameEndedEventArgs~? GameEnded
             +Player CurrentPlayer
-            +Start(string playerOneName, string playerTwoName) GameResponseDto
+            +Start(CreateGameDto dto) GameResponseDto
             +Move(int fromX, int fromY, int toX, int toY) GameResponseDto
             -GetOpponent() Player
             -EndGame(Player winner, string reason) void
@@ -35,9 +43,6 @@ classDiagram
     namespace Services {
         class IGameService {
             <<interface>>
-            -Piece?[,] _grid
-            +int Size
-            +Initialize(Player playerOne, Player playerTwo) void
             +GetPieceAt(int x, int y) Piece?
             +TryMove(Piece piece, int toX, int toY, out bool crowned, out bool captured, out bool hasMoreCapture) bool
             +AllPieces() IEnumerable~Piece~
@@ -47,10 +52,8 @@ classDiagram
         }
         
         class GameService {
-            -Piece?[,] _grid
-            +int Size
-            +Board(BoardSize size)
-            +Initialize(Player playerOne, Player playerTwo) void
+            -Board _board
+            +GameService(CreateGameDto dto)
             +GetPieceAt(int x, int y) Piece?
             +TryMove(Piece piece, int toX, int toY, out bool crowned, out bool captured, out bool hasMoreCapture) bool
             +GetLegalMoves(Player player) IEnumerable~LegalMove~
@@ -65,32 +68,28 @@ classDiagram
     
     namespace Models {
         class Board {
-            +Dictionary~int Id,~
-        }
-        class Player {
-            +player Id
-            +string Name
-            +    
-        }
-        class Cell {
-            +Piece Piece
-            +int PosX
-            +int PosY
+            +Dictionary#lt;#40;int, int#41;, Piece?#gt; Grid 
+            +BoardSize Size
+            
+            +Board(BoardSize Size)
         }
         class Piece {
             +PieceType PieceType
             +ConsoleColor Color
-            +bool IsPlayerOne
+            +Player Player
+        }
+
+        class Player {
+            +string Name
+            +bool IsPlayerOne    
         }
     }
-
-
 
     namespace Events {
         class MoveEventArgs {
             +Player Player
-            +(int X, int Y) From
-            +(int X, int Y) To
+            +#40;int X, int Y#41; From
+            +#40;int X, int Y#41; To
             +Piece Piece
             +bool Crowned
         }
@@ -123,24 +122,12 @@ classDiagram
 
     ConsoleRenderer --> GameController : calls 
     GameController --> IGameService : uses
+    GameController --> MoveEventArgs : uses
+    GameController --> GameEndedEventArgs : uses
     GameController ..> GameResponseDto: depends on
+    GameController ..> CreateGameDto: depends on
     GameService ..|> IGameService: implements
-    
-
-
-    %% GameController --> IBoard : uses
-    %% IBoard *-- "0..*" Piece : has
-    %% IBoard --> "2" Player : initialize
-    %% IBoard --> LegalMove : returns
-    %% GameController o-- Player : owns
-    %% GameController --> Piece : uses
-    %% GameController --> MoveEventArgs : emits
-    %% GameController --> GameEndedEventArgs : emits
-    %% Piece --> Player : owned by
-    %% LegalMove --> Piece : holds
-    %% MoveEventArgs --> Player
-    %% MoveEventArgs --> Piece
-    %% GameEndedEventArgs --> Player
-    %% Board ..|> IBoard
-    %% EventArgs <| -- GameEndedEventArgs
-    %% EventArgs <| -- MoveEventArgs
+    GameService ..> CreateGameDto: depends on
+    GameService --> Board : uses
+    Board *-- "0..*" Piece: has
+    Piece --> Player: belong to
