@@ -3,8 +3,8 @@ classDiagram
         class ConsoleRenderer {
             -Board _board
             -string _eventMessage
-            +GameController GameController
-            ConsoleRenderer()
+            -GameController _gameController
+            +ConsoleRenderer(GameController gameController) void
             +Render() void
             +MoveEvent(object? o, MoveEventArgs e) void
         }
@@ -14,6 +14,7 @@ classDiagram
         class GameResponseDto {
             +bool Success
             +Player CurrentPlayer
+            +Player? Winner
             +Board Board 
         }
 
@@ -24,18 +25,24 @@ classDiagram
             +ConsoleColor PlayerTwoPreferenceColor
             +BoardSize Size
         }
+
+        class UpdatePiecePositionDto {
+            +Position FromPosition
+            +Position ToPosition
+        }
     }
 
     namespace Controllers {
         class GameController {
+            -bool _crowned,
+            -bool _captured,
+            -bool _hasMoreCaptured
             -IGameService _gameService            
-            +List~Player~ Player
             +event EventHandler~MoveEventArgs~? MoveMade
             +event EventHandler~GameEndedEventArgs~? GameEnded
-            +Player CurrentPlayer
+            +GameController(GameService gameService) void
             +Start(CreateGameDto dto) GameResponseDto
-            +Move(int fromX, int fromY, int toX, int toY) GameResponseDto
-            -GetOpponent() Player
+            +Move(UpdatePositionDto dto, _crowned, _captured, _hasMoreCaptured) GameResponseDto
             -EndGame(Player winner, string reason) void
         }
     }
@@ -43,39 +50,41 @@ classDiagram
     namespace Services {
         class IGameService {
             <<interface>>
-            +GetPieceAt(int x, int y) Piece?
-            +TryMove(Piece piece, int toX, int toY, out bool crowned, out bool captured, out bool hasMoreCapture) bool
+            +GetPieceAt(Position position) Piece?
+            +TryMove(UpdatePiecePositionDto dto, out bool crowned, out bool captured, out bool hasMoreCapture) bool
             +AllPieces() IEnumerable~Piece~
             +GetLegalMoves(Player player) IEnumerable~LegalMove~
             +GetLegalMoves(Piece piece) IEnumerable~LegalMove~
+            +HasCaptureMoves(Player player) bool
             +HasAnyMoves(Player player) bool
         }
         
         class GameService {
             -Board _board
+            +List~Player~ Player
+            +Player CurrentPlayer
             +GameService(CreateGameDto dto)
-            +GetPieceAt(int x, int y) Piece?
-            +TryMove(Piece piece, int toX, int toY, out bool crowned, out bool captured, out bool hasMoreCapture) bool
-            +GetLegalMoves(Player player) IEnumerable~LegalMove~
-            +GetLegalMoves(Piece piece) IEnumerable~LegalMove~
-            +HasAnyMoves(Player player) bool
-            +HasCaptureMoves(Player player) bool
-            +AllPieces() IEnumerable~Piece~
-            -PerformMove(Piece piece, int toX, int toY, bool capture, out bool crowned, out bool hasMoreCapture) void
+            -PerformMove(Piece piece, int toX, int toY, out bool crowned, out bool capture, out bool hasMoreCapture) void
             -IsInside(int x, int y) bool
         }
     }
     
     namespace Models {
         class Board {
-            +Dictionary#lt;#40;int, int#41;, Piece?#gt; Grid 
+            +Cell[,] Cell 
             +BoardSize Size
             
             +Board(BoardSize Size)
         }
+
+        class Cell {
+            +Position Position
+            +Piece? Piece
+        }
+
         class Piece {
             +PieceType PieceType
-            +ConsoleColor Color
+            +ConsoleColor Color 
             +Player Player
         }
 
@@ -85,11 +94,18 @@ classDiagram
         }
     }
 
+    namespace Structs {
+        class Position{
+            + int X
+            + int Y
+        }
+    }
+
     namespace Events {
         class MoveEventArgs {
             +Player Player
-            +#40;int X, int Y#41; From
-            +#40;int X, int Y#41; To
+            +Position FromPosition
+            +Position ToPosition
             +Piece Piece
             +bool Crowned
         }
@@ -126,8 +142,10 @@ classDiagram
     GameController --> GameEndedEventArgs : uses
     GameController ..> GameResponseDto: depends on
     GameController ..> CreateGameDto: depends on
+    GameController ..> UpdatePiecePositionDto: depends on
     GameService ..|> IGameService: implements
     GameService ..> CreateGameDto: depends on
     GameService --> Board : uses
-    Board *-- "0..*" Piece: has
-    Piece --> Player: belong to
+    Board *-- "0..*" Cell: has
+    Cell *-- "0..1" Piece: has
+    Piece --> "1"  Player: belongs to

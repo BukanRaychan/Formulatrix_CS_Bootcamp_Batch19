@@ -1,12 +1,12 @@
 ﻿
-class Player
+class Player(string name)
 {
-    public readonly string name = "ray";
+    public readonly string name = name;
 }
 
-class Piece
+class Piece(string name)
 {
-    public readonly Player Player = new Player();
+    public readonly Player Player = new Player(name);
 }
 
 class Ngulik
@@ -15,7 +15,20 @@ class Ngulik
     {
 
         Dictionary<(int, int), Piece> dict = new Dictionary<(int, int), Piece>();
-        dict[(1, 2)] = new Piece();
-        Console.WriteLine(dict[(1, 2)].Player.name);
+        int n = 3;
+        dict[(1, 1)] = new Piece("1");
+        dict[(1, 2)] = new Piece("2");
+        dict[(1, 3)] = new Piece("3");
+        dict[(2, 1)] = new Piece("4");
+        dict[(2, 2)] = new Piece("5");
+        dict[(2, 3)] = new Piece("6");
+        
+        int i = 0;
+        foreach (var (k, v) in dict)
+        {
+            Console.Write($" |{k.Item1}, {k.Item2}: {v.Player.name}| ");
+            if (i % n == 2) Console.WriteLine();
+            i = (i + 1) % n;
+        }
     }
 }
