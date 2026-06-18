@@ -12,7 +12,6 @@ classDiagram
 
     namespace DTOs {
         class GameResponseDto {
-            +bool Success
             +Player CurrentPlayer
             +Player? Winner
             +Board Board 
@@ -30,42 +29,50 @@ classDiagram
             +Position FromPosition
             +Position ToPosition
         }
+
+        class UpdatePiecePositionResultDto {
+            +bool MovementSucceed
+            +bool Crowned
+            +bool Captured
+            +bool HasMoreCaptures
+            +Player CurrentPlayer
+            +Player? Winner
+            +Board Board 
+        }
     }
 
     namespace Controllers {
         class GameController {
-            -bool _crowned,
-            -bool _captured,
-            -bool _hasMoreCaptured
-            -IGameService _gameService            
+            -IGameService _gameService
             +event EventHandler~MoveEventArgs~? MoveMade
             +event EventHandler~GameEndedEventArgs~? GameEnded
-            +GameController(GameService gameService) void
+            +GameController(IGameService gameService)
             +Start(CreateGameDto dto) GameResponseDto
-            +Move(UpdatePositionDto dto, _crowned, _captured, _hasMoreCaptured) GameResponseDto
-            -EndGame(Player winner, string reason) void
+            +Move(UpdatePiecePositionDto dto) GameResponseDto
+            +Restart() GameResponseDto
         }
     }
     
     namespace Services {
         class IGameService {
             <<interface>>
+            +InitializeBoard(CreateGameDto? dto) GameResponseDto
             +GetPieceAt(Position position) Piece?
-            +TryMove(UpdatePiecePositionDto dto, out bool crowned, out bool captured, out bool hasMoreCapture) bool
+            +TryMove(UpdatePiecePositionDto dto) UpdatePiecePositionResultDto
             +AllPieces() IEnumerable~Piece~
             +GetLegalMoves(Player player) IEnumerable~LegalMove~
             +GetLegalMoves(Piece piece) IEnumerable~LegalMove~
             +HasCaptureMoves(Player player) bool
             +HasAnyMoves(Player player) bool
         }
-        
+
         class GameService {
             -Board _board
-            +List~Player~ Player
+            -List~Player~ _players
             +Player CurrentPlayer
-            +GameService(CreateGameDto dto)
-            -PerformMove(Piece piece, int toX, int toY, out bool crowned, out bool capture, out bool hasMoreCapture) void
-            -IsInside(int x, int y) bool
+            -PerformMove(Piece piece, Position to) UpdatePiecePositionResultDto
+            -SwitchTurn() void
+            -IsInside(Position position) bool
         }
     }
     
@@ -143,6 +150,8 @@ classDiagram
     GameController ..> GameResponseDto: depends on
     GameController ..> CreateGameDto: depends on
     GameController ..> UpdatePiecePositionDto: depends on
+    GameController ..> UpdatePiecePositionResultDto : reads
+    GameService ..> UpdatePiecePositionResultDto : returns
     GameService ..|> IGameService: implements
     GameService ..> CreateGameDto: depends on
     GameService --> Board : uses
