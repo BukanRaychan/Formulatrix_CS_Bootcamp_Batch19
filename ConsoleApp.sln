@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ngulik", "Ngulik\Ngulik.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckersBoardGame", "CheckersBoardGame\CheckersBoardGame.csproj", "{1DFED74F-7AAF-4214-AAF7-EFC920C1F954}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stream and IO", "Stream and IO\Stream and IO.csproj", "{52399BA7-7F63-448E-AF10-F7D94BC5AF9E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,5 +37,9 @@ Global
 		{1DFED74F-7AAF-4214-AAF7-EFC920C1F954}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1DFED74F-7AAF-4214-AAF7-EFC920C1F954}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1DFED74F-7AAF-4214-AAF7-EFC920C1F954}.Release|Any CPU.Build.0 = Release|Any CPU
+		{52399BA7-7F63-448E-AF10-F7D94BC5AF9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52399BA7-7F63-448E-AF10-F7D94BC5AF9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52399BA7-7F63-448E-AF10-F7D94BC5AF9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52399BA7-7F63-448E-AF10-F7D94BC5AF9E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
