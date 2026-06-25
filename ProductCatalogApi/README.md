@@ -14,7 +14,7 @@ A RESTful Web API built with ASP.NET Core following clean architecture principle
 | AutoMapper | Object mapping |
 | FluentValidation | Request validation |
 | ASP.NET Core Identity | User management |
-| JWT Bearer | Authentication |
+| Cookie Authentication | Authentication (HttpOnly cookie) |
 | Swagger / OpenAPI | API documentation |
 
 ---
@@ -47,23 +47,7 @@ cd Formulatrix_CS_Bootcamp_Batch19
 dotnet restore
 ```
 
-### 3. Configure JWT settings
-
-Open `appsettings.json` and set your JWT secret key:
-
-```json
-{
-  "Jwt": {
-    "Key": "YourSuperSecretKeyThatIsAtLeast32CharactersLong!",
-    "Issuer": "ProductCatalogAPI",
-    "Audience": "ProductCatalogAPIUsers"
-  }
-}
-```
-
-> **Important:** Never commit your real JWT key to GitHub. Use environment variables or `appsettings.Development.json` for local development.
-
-### 4. Apply migrations
+### 3. Apply migrations
 
 ```bash
 dotnet ef database update
@@ -71,7 +55,7 @@ dotnet ef database update
 
 This creates the `ProductCatalog.db` SQLite file and applies all migrations.
 
-### 5. Run the app
+### 4. Run the app
 
 ```bash
 dotnet run
@@ -79,7 +63,7 @@ dotnet run
 
 The app runs at `http://localhost:5280` by default.
 
-### 6. Open Swagger UI
+### 5. Open Swagger UI
 
 ```
 http://localhost:5280/swagger
@@ -134,7 +118,7 @@ Global Exception Handler   (catches all unhandled errors)
     ↓
 FluentValidation           (rejects invalid request body with 400)
     ↓
-JWT Authentication         (rejects missing/invalid token with 401)
+Cookie Authentication      (rejects missing/invalid auth cookie with 401)
     ↓
 Controller                 (receives DTO, returns HTTP response)
     ↓
@@ -151,7 +135,7 @@ Database
 
 ## Authentication
 
-This API uses **JWT Bearer** authentication.
+This API uses **cookie authentication**. On register/login the server issues an `HttpOnly` cookie named `AuthCookie`; the browser sends it automatically on every subsequent request, so there is no token to manage on the client.
 
 ### Step 1 — Register
 
@@ -179,35 +163,36 @@ Content-Type: application/json
 }
 ```
 
-Response:
+Both register and login set the `AuthCookie` in the response (`Set-Cookie` header) and return the user info — **not** a token:
 
 ```json
 {
   "success": true,
   "message": "Login successful",
   "data": {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "id": "a1b2c3d4-...",
     "email": "admin@example.com",
     "firstName": "admin",
     "lastName": "utama",
-    "expiresAt": "2026-06-08T06:00:00Z"
+    "fullName": "admin utama"
   }
 }
 ```
 
-### Step 3 — Use the token
+### Step 3 — Call protected endpoints
 
-Include the token in the `Authorization` header on all protected requests:
+No `Authorization` header is needed — the `AuthCookie` is sent automatically with each request. Just ensure your client preserves cookies:
+
+- **Browser / frontend:** use `credentials: "include"` on fetch/axios so the cookie is sent cross-origin (the CORS policy already allows credentials for the configured origins).
+- **Swagger UI:** it shares the browser's cookies, so after logging in via the `/api/Auth/login` endpoint, protected endpoints work automatically — no **Authorize** button needed.
+
+### Step 4 — Logout
 
 ```http
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+POST /api/Auth/logout
 ```
 
-In Swagger UI, click the **Authorize** button and enter:
-
-```
-Bearer your_token_here
-```
+Clears the `AuthCookie`. Requires an authenticated request.
 
 ---
 
@@ -264,13 +249,59 @@ dotnet run
 
 ---
 
-## Environment Variables
+## Configuration & Environment Variables
 
-| Key | Description |
+The app reads configuration from (later sources override earlier ones):
+
+```
+appsettings.json  →  appsettings.{Environment}.json  →  User Secrets (dev only)  →  Environment Variables
+```
+
+The active environment is set by `ASPNETCORE_ENVIRONMENT`. Locally it is `Development` (set in `Properties/launchSettings.json`); when deployed with nothing set, .NET defaults to `Production`.
+
+Authentication is cookie-based, so there is no signing key to configure — the cookie is protected automatically by ASP.NET Core Data Protection.
+
+### Settings
+
+| Config key | Description |
 |---|---|
-| `Jwt:Key` | Secret key for signing JWT tokens (min 32 characters) |
-| `Jwt:Issuer` | JWT issuer name |
-| `Jwt:Audience` | JWT audience name |
+| `Database:Provider` | Database engine: `Sqlite` (default, local dev) or `MySql` |
+| `ConnectionStrings:DefaultConnection` | Database connection string (defaults to local SQLite) |
+| `Cors:AllowedOrigins` | Array of frontend origins allowed by CORS |
+
+### Production override (environment variables)
+
+In production, supply per-environment values as OS/container environment variables. Nested keys use `__` (double underscore) and array elements use a numeric index:
+
+```bash
+ASPNETCORE_ENVIRONMENT=Production
+Database__Provider=MySql
+ConnectionStrings__DefaultConnection=<your-db-connection-string>
+Cors__AllowedOrigins__0=https://your-frontend.example.com
+```
+
+A ready-made `appsettings.Production.json` template ships with the project; secrets (DB password) should still come from environment variables, not that file.
+
+---
+
+## Database Providers
+
+The DB engine is selected at startup from `Database:Provider`, so the same code runs on SQLite locally and MySQL in production with no code changes:
+
+| Provider | When | Connection string example |
+|---|---|---|
+| `Sqlite` | Local dev (default) | `Data Source=ProductCatalog.db` |
+| `MySql` | Production | `Server=host;Port=3306;Database=productcatalog;User=appuser;Password=...` |
+
+> **⚠️ Migrations are provider-specific.** The committed `Migrations/` folder was generated for **SQLite**. When you switch to MySQL, delete the `Migrations/` folder and regenerate it against MySQL before deploying:
+>
+> ```bash
+> # with Database:Provider=MySql and a reachable MySQL connection string
+> rm -r Migrations
+> dotnet ef migrations add InitialCreate
+> ```
+>
+> The app calls `Database.Migrate()` on startup, so once the migrations match the provider, the schema is applied automatically on first run.
 
 ---
 

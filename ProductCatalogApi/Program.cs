@@ -39,9 +39,21 @@ builder.Services.AddScoped<ISeeder, UnitProductSeeder>();
 // Register orchestrator
 builder.Services.AddScoped<DataSeeder>();
 
-// Database (SQLite)
-builder.Services.AddDbContext<AppDbContext>(options => 
-    options.UseSqlite("Data Source=ProductCatalog.db"));
+// Database — provider chosen by config (Sqlite for local dev, MySql for production)
+var dbProvider = builder.Configuration["Database:Provider"] ?? "Sqlite";
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    switch (dbProvider.ToLowerInvariant())
+    {
+        case "mysql":
+            options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+            break;
+        default:
+            options.UseSqlite(connectionString);
+            break;
+    }
+});
 
 // Global Exception Handler
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -60,7 +72,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(
 .AddDefaultTokenProviders();
 
 // Cookie Authentication
-var jwtKey = builder.Configuration["Jwt:Key"]!;
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -71,7 +82,9 @@ builder.Services.AddAuthentication(options =>
 {
     options.Cookie.Name = "AuthCookie";
     options.Cookie.HttpOnly = true;      
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; 
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+        ? CookieSecurePolicy.SameAsRequest
+        : CookieSecurePolicy.Always;
     options.Cookie.SameSite = SameSiteMode.Lax; 
     options.ExpireTimeSpan = TimeSpan.FromDays(7);  
     options.SlidingExpiration = true;               
@@ -89,11 +102,12 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173") 
+        policy.WithOrigins(corsOrigins)
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials();
@@ -107,7 +121,7 @@ app.UseCors("AllowFrontend");
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    context.Database.EnsureCreated();
+    context.Database.Migrate();
 
     if (builder.Configuration.GetValue<bool>("SeedDatabase"))
     {

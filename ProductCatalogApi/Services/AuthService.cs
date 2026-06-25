@@ -67,8 +67,7 @@ public class AuthService : IAuthService
         var updateResult = await _userManager.UpdateAsync(user);
         return updateResult.Succeeded;
     }
-
-    // Replaces GenerateToken — builds claims instead of a JWT
+    
     private AuthResultDto BuildAuthResult(ApplicationUser user)
     {
         var claims = new List<Claim>
