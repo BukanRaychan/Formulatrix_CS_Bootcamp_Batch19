@@ -26,7 +26,6 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
             .IsRequired()
             .HasDefaultValueSql("datetime('now')");
 
-        // Relationship
         builder.HasMany(p => p.UnitProducts)
             .WithOne(u => u.Product)
             .HasForeignKey(u => u.ProductId);
