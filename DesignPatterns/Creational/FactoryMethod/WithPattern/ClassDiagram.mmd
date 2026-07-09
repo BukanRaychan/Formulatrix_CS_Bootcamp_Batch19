@@ -1,0 +1,55 @@
+classDiagram
+direction RL
+	namespace Creator {
+        class PaymentProcessorCreator {
+	        +Checkout(amount: decimal) void
+	        #CreateMethod() IPaymentMethod
+        }
+
+        class PayPalPaymentCreator {
+	        #CreateMethod() IPaymentMethod
+        }
+
+        class RazorpayPaymentCreator {
+	        #CreateMethod() IPaymentMethod
+        }
+
+        class StripePaymentCreator {
+	        #CreateMethod() IPaymentMethod
+        }
+
+	}
+	namespace Method {
+        class IPaymentMethod {
+	        +Pay(amount: decimal) void
+        }
+
+        class StripePaymentMethod {
+	        +Pay(amount: decimal) void
+        }
+
+        class PayPalPaymentMethod {
+	        +Pay(amount: decimal) void
+        }
+
+        class RazorpayPaymentMethod {
+	        +Pay(amount: decimal) void
+        }
+
+	}
+
+	<<abstract>> PaymentProcessorCreator
+	<<interface>> IPaymentMethod
+
+    PaymentProcessorCreator <|-- StripePaymentCreator
+    PaymentProcessorCreator <|-- PayPalPaymentCreator
+    PaymentProcessorCreator <|-- RazorpayPaymentCreator
+
+    IPaymentMethod <|.. StripePaymentMethod
+    IPaymentMethod <|.. PayPalPaymentMethod
+    IPaymentMethod <|.. RazorpayPaymentMethod
+
+    StripePaymentCreator ..> StripePaymentMethod : creates
+    PayPalPaymentCreator ..> PayPalPaymentMethod : creates
+    RazorpayPaymentCreator ..> RazorpayPaymentMethod : creates
+    PaymentProcessorCreator ..> IPaymentMethod : uses
