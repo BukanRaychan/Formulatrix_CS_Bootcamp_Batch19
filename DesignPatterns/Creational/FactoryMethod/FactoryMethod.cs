@@ -9,7 +9,7 @@ public class FactoryMethod : IApp
     public void Run()
     {
         //========= Without Factory Method =========
-        var checkout = new WithoutPattern.CheckoutService();
+        var checkout = new WithoutPattern.PaymentService();
         checkout.Checkout("stripe", 49.99m);
         checkout.Checkout("paypal", 19.99m);
         // Adding Razorpay here means editing CheckoutService's switch statement.

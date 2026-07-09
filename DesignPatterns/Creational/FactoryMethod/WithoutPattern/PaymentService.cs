@@ -3,7 +3,7 @@ namespace DesignPatterns.Creational.FactoryMethodExamples.WithoutPattern;
 // Every checkout flow that needs to charge a customer has to repeat this
 // same switch. Adding a new gateway (e.g. Razorpay) means finding and
 // editing every one of these switches across the codebase.
-public class CheckoutService
+public class PaymentService
 {
     public void Checkout(string gateway, decimal amount)
     {
