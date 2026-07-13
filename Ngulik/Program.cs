@@ -1,34 +1,52 @@
 ﻿
-class Player(string name)
-{
-    public readonly string name = name;
-}
 
-class Piece(string name)
+// Singleton Class
+public sealed class Service
 {
-    public readonly Player Player = new Player(name);
-}
+    public Service() { }
 
-class Ngulik
-{
-    public static void Main()
+    private static Service? _instance;
+    private static int _totCall = 0;
+    public string ExternalAPIURL {get;set;} = "";
+
+    public static Service GetInstance()
     {
-
-        Dictionary<(int, int), Piece> dict = new Dictionary<(int, int), Piece>();
-        int n = 3;
-        dict[(1, 1)] = new Piece("1");
-        dict[(1, 2)] = new Piece("2");
-        dict[(1, 3)] = new Piece("3");
-        dict[(2, 1)] = new Piece("4");
-        dict[(2, 2)] = new Piece("5");
-        dict[(2, 3)] = new Piece("6");
-        
-        int i = 0;
-        foreach (var (k, v) in dict)
+        if (_instance == null)
         {
-            Console.Write($" |{k.Item1}, {k.Item2}: {v.Player.name}| ");
-            if (i % n == 2) Console.WriteLine();
-            i = (i + 1) % n;
+            _instance = new Service();
         }
+        return _instance;
+    }
+
+    public string Fetch()
+    {
+        string res = $"FETCH_{_totCall++:00}_STATUS: ";
+        res += ExternalAPIURL == "" ? "ERROR" : "Data is fetched successfully";
+        return  res;
+    }
+}
+public class GlobalVariable
+{
+    public static Service Service {get;} = new Service(){ExternalAPIURL = "https://realdomain.com"};
+}
+
+public class Program
+{
+    static void Main(string[] args)
+    {
+        Console.WriteLine(GlobalVariable.Service.Fetch());
+        
+        /*
+            Long Code Section
+        **/
+        Service.GetInstance().ExternalAPIURL = "https://realdomain.com";
+
+        Console.WriteLine(Service.GetInstance().Fetch());
+        Console.WriteLine(Service.GetInstance().Fetch());
+        Console.WriteLine(Service.GetInstance().Fetch());
+        Console.WriteLine(Service.GetInstance().Fetch());
+        Console.WriteLine(Service.GetInstance().Fetch());
+        Console.WriteLine(Service.GetInstance().Fetch());
+        Console.WriteLine(Service.GetInstance().Fetch());
     }
 }
