@@ -26,6 +26,14 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
             .IsRequired()
             .HasDefaultValueSql("datetime('now')");
 
+        builder.Property(p => p.Status)
+            .IsRequired()
+            .HasConversion<string>()
+            .HasMaxLength(20);
+
+        builder.Property(o => o.Status)
+            .HasConversion<string>(); 
+
         builder.HasMany(p => p.UnitProducts)
             .WithOne(u => u.Product)
             .HasForeignKey(u => u.ProductId);
